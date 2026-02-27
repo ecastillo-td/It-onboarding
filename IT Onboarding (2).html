@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Data - IT Onboarding Knowledge Base</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-800">IT Onboarding Hub</h1>
+                </div>
+                <div class="w-full max-w-lg">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 21L15.803 15.803M15.803 15.803C17.2236 14.3824 18.0001 12.4862 18.0001 10.5C18.0001 6.35786 14.6422 3 10.5001 3C6.35791 3 3.00005 6.35786 3.00005 10.5C3.00005 14.6421 6.35791 18 10.5001 18C12.4863 18 14.3825 17.2235 15.803 15.803V15.803Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </span>
+                        <input type="text" id="searchInput" class="w-full pl-10 pr-4 py-2 border rounded-full text-sm text-gray-700 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white" placeholder="Search for topics (e.g., 'VPN', 'Password')">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div id="knowledgeBaseGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Knowledge base cards will be injected here by JavaScript -->
+        </div>
+        <div id="noResults" class="hidden text-center py-16">
+            <h2 class="text-2xl font-semibold text-gray-600">No results found</h2>
+            <p class="text-gray-500 mt-2">Try searching for a different keyword.</p>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
+        <div id="modal-content-wrapper" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <div id="modal-icon" class="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <!-- Icon goes here -->
+                    </div>
+                    <div>
+                        <h2 id="modal-title" class="text-2xl font-bold text-gray-900"></h2>
+                        <p id="modal-category" class="text-sm text-gray-500"></p>
+                    </div>
+                </div>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- Modal Content -->
+            <div id="modal-content" class="p-8 overflow-y-auto modal-content">
+                <!-- Detailed content goes here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // This data is extracted from the user's PowerPoint presentation.
+        const knowledgeBaseData = [
+            {
+                category: 'Getting Started',
+                title: 'Meet the IT Team',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Contacting the IT Team</h3>
+                    <p class="mb-4">Our IT Productivity Engineering team is available to support you Monday–Friday during local business hours. For urgent issues on weekends, please reach out.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                            <span class="font-semibold text-gray-700">Primary Contact:</span>
+                            <span class="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">#it-ops Slack channel</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                            <span class="font-semibold text-gray-700">For Tickets:</span>
+                            <a href="https://treasure-data.atlassian.net/servicedesk/customer/portal/3" target="_blank" class="text-blue-600 hover:underline">IT Service Management (ITSM) Portal</a>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mt-6 mb-4 text-gray-800">Team Members</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Mathew Abraham:</strong> Senior Manager</li>
+                        <li><strong>Steve Poe:</strong> Staff Business Systems Specialist (PST)</li>
+                        <li><strong>Tom Lenz:</strong> Staff IT Systems Engineer (CST)</li>
+                        <li><strong>Terry Horikiri:</strong> Senior IT Systems Engineer (PST)</li>
+                        <li><strong>Chris Ferguson:</strong> IT Operations Analyst (JST)</li>
+                        <li><strong>Ash Hayes:</strong> IT Operations Analyst (GMT)</li>
+                        <li><strong>John Quingco:</strong> (PHST)</li>
+                    </ul>
+                `
+            },
+            {
+                category: 'Hardware Setup',
+                title: 'Initial MacBook Setup',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Step-by-Step Guide</h3>
+                    <ol class="list-decimal list-inside space-y-4">
+                        <li><strong>Jamf Enrollment (Most Important First Step):</strong>
+                             <p class="text-gray-600 pl-6">Follow this guide for the initial setup and Jamf enrollment: <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/2815197195/New+Laptop+MacBook+Pro+Setup+Jamf+Enrollment" target="_blank" class="text-blue-600 hover:underline font-semibold">New Laptop MacBook Pro Setup + Jamf Enrollment</a></p>
+                        </li>
+                        <li><strong>Connect to Guest Wi-Fi:</strong>
+                            <ul class="list-disc list-inside pl-6 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Network:</strong> Treasure Data Guest</li>
+                                <li><strong>Password:</strong> TheBestCDP</li>
+                                <li>After setup, your MacBook will auto-connect to the secure "Treasure Data" office Wi-Fi.</li>
+                            </ul>
+                        </li>
+                        <li><strong>User Identity:</strong>
+                            <ul class="list-disc list-inside pl-6 mt-2 space-y-1 text-gray-600">
+                                <li>Your login username is <strong>first.last</strong>.</li>
+                                <li>Your email is <strong>first.last@treasure-data.com</strong>.</li>
+                                <li>Your MacBook & Okta passwords are the same and sync automatically.</li>
+                                <li><span class="text-red-600 font-semibold">Important:</span> Log in to your laptop with your username (first.last), NOT your full email.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Configure Okta Verify:</strong>
+                             <p class="text-gray-600 pl-6">Follow the setup guide here: <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3066004142/Okta+Verify+Setup" target="_blank" class="text-blue-600 hover:underline">Okta Verify Setup Guide</a></p>
+                        </li>
+                        <li><strong>Install Applications:</strong>
+                            <p class="text-gray-600 pl-6">Use the <strong>"Self Service.app"</strong> found in your Applications folder to install all corporate apps.</p>
+                        </li>
+                    </ol>
+                    <div class="mt-6 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3181150290/MacBooks" target="_blank" class="text-blue-600 hover:underline">MacBooks</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Hardware Setup',
+                title: 'Mobile Phone Setup',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>`,
+                url: 'https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3181740053/Mobile+Phones+iOS+Android'
+            },
+            {
+                category: 'Hardware Setup',
+                title: 'Office Printer Setup',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">How to Add Office Printers</h3>
+                    <p class="mb-4">You can add Treasure Data office printers to your MacBook using the "Self Service.app".</p>
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                        <h4 class="font-bold text-blue-800">Official How-To Guide</h4>
+                        <p class="text-blue-700 mt-1">The Confluence page linked below provides a step-by-step guide on how to add printers.</p>
+                        <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/4069458056/How+to+use+Self+Service+on+your+Macbook+to+add+Treasure+Data+Office+Printers+Draft" target="_blank" class="text-blue-600 font-semibold hover:underline mt-2 inline-block">View the Guide on Confluence &rarr;</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Accounts & Access',
+                title: 'Logins & SSO (Okta)',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a4 4 0 11-8 0 4 4 0 018 0zM9 15h6A2 2 0 0117 17v2a2 2 0 01-2 2H9a2 2 0 01-2-2v-2A2 2 0 019 15z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">How to Access Your Apps</h3>
+                    <p class="mb-4">We use Okta as our Single Sign-On (SSO) provider to simplify and secure access to most applications.</p>
+                    <ul class="space-y-4">
+                        <li class="p-4 border rounded-lg">
+                            <strong class="text-gray-700">Okta SSO Portal:</strong> Most apps (Google Workspace, Slack, Zoom) are on the Okta portal.
+                            <br>
+                            <a href="https://treasure-data.okta.com/" target="_blank" class="text-blue-600 hover:underline">https://treasure-data.okta.com/</a>
+                            <br>
+                            <span class="text-sm text-red-600">Important: Log in with your username (first.last), NOT your full email.</span>
+                        </li>
+                        <li class="p-4 border rounded-lg">
+                            <strong class="text-gray-700">Login with Google:</strong> Some apps (e.g., Sentry, BambooHR) use Google for sign-in. Use your corporate email for these.
+                        </li>
+                        <li class="p-4 border rounded-lg">
+                            <strong class="text-gray-700">Other Logins:</strong> Apps like Insperity, Kintai, and Carta are not managed by IT and have separate logins.
+                        </li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/x/3gBBvw" target="_blank" class="text-blue-600 hover:underline">Okta (Internal)</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Accounts & Access',
+                title: 'Application Access Request',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">How to Request Access to an Application</h3>
+                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg mb-4">
+                        <h4 class="font-bold text-yellow-800">Please Note:</h4>
+                        <p class="text-yellow-700 mt-1">Some applications you should have access to by default, depending on your role and if your CMA clearance is complete. If you are missing any expected access, please raise an ITSM ticket for review.</p>
+                    </div>
+                    <p class="mb-4">For new applications, please submit an <a href="https://treasure-data.atlassian.net/servicedesk/customer/portal/3" target="_blank" class="text-blue-600 hover:underline">ITSM ticket</a> and include the following details. After submitting, tag your manager for approval.</p>
+                    <div class="p-4 bg-gray-50 border rounded-lg">
+<pre class="whitespace-pre-wrap font-sans text-gray-700">
+Application Name:
+Type of Access:
+Colleague to Copy Access From (if applicable):
+Business Justification:
+</pre>
+                    </div>
+                `
+            },
+            {
+                category: 'Accounts & Access',
+                title: 'Jira / Confluence Access',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`,
+                url: 'https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3619979401/Requesting+Additional+Access+to+JIRA+or+Confluence'
+            },
+            {
+                category: 'Accounts & Access',
+                title: 'AWS VPN',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-1.026.977-2.19.977-3.431 0-5.228-4.477-9.5-10-9.5S2 7.331 2 12.569c0 4.307 2.966 7.945 7 9.188" /></svg>`,
+                url: 'https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3729850670/AWS+VPN+Client'
+            },
+            {
+                category: 'Security',
+                title: 'Password Management',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Using Bitwarden</h3>
+                    <p class="mb-4">Bitwarden is our official tool for storing and sharing passwords for team and departmental applications.</p>
+                    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                        <h4 class="font-bold text-red-800">Critical Security Policy</h4>
+                        <p class="text-red-700 mt-1"><strong>Never share passwords via Slack or email.</strong> Always use Bitwarden for secure sharing to protect company and customer data.</p>
+                    </div>
+                    <h4 class="font-semibold text-gray-700 mt-6 mb-2">Key Features:</h4>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Securely store unlimited passwords.</li>
+                        <li>Create shared collections for your team.</li>
+                        <li>Generate strong, unique passwords.</li>
+                        <li>Access via browser extension and mobile app.</li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/x/OgGk5w" target="_blank" class="text-blue-600 hover:underline">Signing into Bitwarden (Internal)</a>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://bitwarden.com/help/getting-started-browserext/" target="_blank" class="text-blue-600 hover:underline">Bitwarden - Getting Started Guide</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Security',
+                title: 'Backups & Antivirus',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Your Laptop's Protection</h3>
+                    <p class="mb-4">Your work laptop is automatically protected by the following services:</p>
+                    <ul class="space-y-4">
+                        <li class="p-4 border rounded-lg">
+                            <strong class="text-gray-700">Code42 Cloud Backup:</strong>
+                            <p class="text-gray-600">Backs up your local laptop folders (Documents, Desktop, Downloads) to the cloud every 15 minutes.</p>
+                        </li>
+                        <li class="p-4 border rounded-lg">
+                            <strong class="text-gray-700">Carbon Black Antivirus:</strong>
+                            <p class="text-gray-600">Provides continuous, real-time antivirus and malware protection for your laptop.</p>
+                        </li>
+                    </ul>
+                     <div class="p-4 mt-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                        <h4 class="font-bold text-yellow-800">Best Practice</h4>
+                        <p class="text-yellow-700 mt-1">Use <strong>Google Drive</strong> for your primary work data storage instead of your local drive. This ensures your data is always accessible, even if your laptop is lost or damaged.</p>
+                    </div>
+                `
+            },
+            {
+                category: 'Core Applications',
+                title: 'Google Workspace',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M12 12a4 4 0 100-8 4 4 0 000 8z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Email, Calendar, Drive & More</h3>
+                    <p class="mb-4">Google Workspace is our standard for file storage, sharing, and collaboration.</p>
+                    <h4 class="font-semibold text-gray-700 mt-6 mb-2">Key Policies & Tips:</h4>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li>When using Chrome on your work laptop, ensure you are <strong>signed in to your Treasure Data account</strong> and that <strong>Sync is On</strong>.</li>
+                        <li><strong>Security:</strong> DO NOT sign in to non-Treasure Data laptops with your corporate email address.</li>
+                        <li><strong>Best Practice:</strong> Use Google Drive to store work data instead of your local laptop drive.</li>
+                        <li><strong>Data Safety:</strong> Avoid storing personal data on your corporate Google Drive.</li>
+                        <li><strong>Sharing:</strong> Be cautious when sharing sensitive files. Avoid sharing with "All Treasure Data" unless absolutely necessary.</li>
+                    </ul>
+                     <div class="mt-6 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3238985930/Google+Workspace" target="_blank" class="text-blue-600 hover:underline">Google Workspace (Internal)</a>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://support.google.com/a/users/?hl=en" target="_blank" class="text-blue-600 hover:underline">Google Workspace Learning Center</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Core Applications',
+                title: 'Slack',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Our Primary Messaging Platform</h3>
+                    <p class="mb-4">Slack is used for all internal communication via direct messages (DMs) and channels.</p>
+                    <h4 class="font-semibold text-gray-700 mt-6 mb-2">Getting Started:</h4>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li>You will be auto-added to essential channels like <strong>#company</strong>, <strong>#it-ops</strong>, and <strong>#random</strong>.</li>
+                        <li><strong>Tip:</strong> To easily see unread messages, go to Preferences > Home and check "Show a dot on the Home icon when there is unread activity" and under "Always show in the sidebar", select "Unreads".</li>
+                        <li><strong>Integrations:</strong> Add Slack apps like Jira, Google Calendar, and Confluence to get notifications directly in Slack.</li>
+                    </ul>
+                     <div class="mt-6 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3181641744/Slack" target="_blank" class="text-blue-600 hover:underline">Slack (Internal)</a>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://slack.com/blog/productivity/getting-started-your-first-week-in-slack" target="_blank" class="text-blue-600 hover:underline">Slack - Your First Week Guide</a>
+                    </div>
+                `
+            },
+             {
+                category: 'Core Applications',
+                title: 'Zoom',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Video Conferencing & Phone</h3>
+                     <div class="mt-6 pt-4">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <ul class="list-disc list-inside space-y-2 mt-2">
+                            <li><a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3181641754/Zoom+Meetings" target="_blank" class="text-blue-600 hover:underline">Zoom Meetings (Internal)</a></li>
+                            <li><a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3181248607/Zoom+Phones" target="_blank" class="text-blue-600 hover:underline">Zoom Phones (Internal)</a></li>
+                         </ul>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0061316" target="_blank" class="text-blue-600 hover:underline">Zoom - Getting Started Guide for New Users</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Core Applications',
+                title: 'Microsoft Office 365',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 18h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" /></svg>`,
+                url: 'https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3728179247/Microsoft+O365'
+            },
+            {
+                category: 'Additional Applications',
+                title: 'Tableau',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Data Visualization</h3>
+                     <div class="mt-6 pt-4">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3287973912/Tableau" target="_blank" class="text-blue-600 hover:underline">Tableau (Internal)</a>
+                    </div>
+                     <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://help.tableau.com/current/guides/get-started-tutorial/en-us/get-started-tutorial-home.htm" target="_blank" class="text-blue-600 hover:underline">Tableau - Get Started Tutorial</a>
+                    </div>
+                `
+            },
+             {
+                category: 'Additional Applications',
+                title: 'Lucidchart',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 8v5c0 .512.195 1.024.586 1.414l7 7a2 2 0 002.828 0l7-7a2 2 0 000-2.828l-7-7A2 2 0 0012 3H7a4 4 0 00-4 4v.5" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Diagramming & Whiteboarding</h3>
+                     <div class="mt-6 pt-4">
+                         <h4 class="text-lg font-semibold text-gray-700">Learn more about:</h4>
+                         <a href="https://treasure-data.atlassian.net/wiki/spaces/ITOPSKB/pages/3728179258/Lucid+Charts" target="_blank" class="text-blue-600 hover:underline">Lucidchart (Internal)</a>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <h4 class="text-lg font-semibold text-gray-700">External Resources:</h4>
+                         <a href="https://help.lucid.co/hc/en-us/articles/11970952773652-Welcome-to-Lucidchart" target="_blank" class="text-blue-600 hover:underline">Lucidchart - Welcome Guide</a>
+                    </div>
+                `
+            },
+            {
+                category: 'Hardware & Procurement',
+                title: 'How to Request IT Peripherals',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Guide to Requesting Accessories via Zip</h3>
+                    <p class="mb-4">Whether you are a new hire getting set up or a current employee needing a new mouse, keyboard, monitor, or other accessory, all requests must be placed through the <strong>Zip service</strong>.</p>
+                    <p class="mb-4">This process ensures proper tracking, approval, and fulfillment of your request. Please do not use Slack or email to request hardware.</p>
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                        <h4 class="font-bold text-blue-800">Official How-To Guide</h4>
+                        <p class="text-blue-700 mt-1">The Confluence page linked below provides a step-by-step guide on how to submit a request in Zip.</p>
+                        <a href="https://treasure-data.atlassian.net/wiki/spaces/PROC/pages/2433187867/New+Hire+Current+Employee+-+IT+Peripheral+Request" target="_blank" class="text-blue-600 font-semibold hover:underline mt-2 inline-block">View the Guide on Confluence &rarr;</a>
+                    </div>
+                    <h4 class="font-semibold text-gray-700 mt-6 mb-2">Commonly Requested Items:</h4>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Monitors</li>
+                        <li>Keyboards & Mice</li>
+                        <li>Headsets</li>
+                        <li>Webcams</li>
+                        <li>Docking Stations & Adapters</li>
+                        <li>Other approved peripherals</li>
+                    </ul>
+                `
+            },
+            {
+                category: 'Further Assistance',
+                title: 'More Questions? Ask Glean!',
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+                content: `
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Using Glean, our AI Assistant</h3>
+                    <p class="mb-4">Glean is an AI-powered search tool that connects to all our company resources. Simply type your question, and it will find the most relevant information from Confluence, Google Drive, and other internal sources.</p>
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-4">
+                        <a href="https://app.glean.com/chat" target="_blank" class="text-blue-600 font-semibold hover:underline">Ask Glean Now &rarr;</a>
+                    </div>
+                    <h4 class="font-semibold text-gray-700 mt-6 mb-2">Still can't find an answer?</h4>
+                    <p class="text-gray-600">If you are still unable to find the answer you are looking for, please feel free to send a message to the <strong>#it-ops</strong> channel on Slack or <a href="https://treasure-data.atlassian.net/servicedesk/customer/portal/3" target="_blank" class="text-blue-600 hover:underline">create an ITSM ticket</a>.</p>
+                `
+            },
+        ];
+
+        // --- SCRIPT LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('knowledgeBaseGrid');
+            const searchInput = document.getElementById('searchInput');
+            const noResultsDiv = document.getElementById('noResults');
+            const modal = document.getElementById('modal');
+            const modalContentWrapper = document.getElementById('modal-content-wrapper');
+            const closeModalBtn = document.getElementById('closeModal');
+
+            // Function to create and display cards
+            const displayCards = (data) => {
+                grid.innerHTML = '';
+                if (data.length === 0) {
+                    noResultsDiv.classList.remove('hidden');
+                } else {
+                    noResultsDiv.classList.add('hidden');
+                }
+                // Sort data to keep new items grouped logically
+                const sortedData = data.sort((a, b) => {
+                    const categoryOrder = ['Getting Started', 'Hardware Setup', 'Accounts & Access', 'Security', 'Core Applications', 'Additional Applications', 'Hardware & Procurement', 'Further Assistance'];
+                    return categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category);
+                });
+
+                sortedData.forEach(item => {
+                    const cardContent = `
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                                ${item.icon}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-blue-600">${item.category}</p>
+                                <h3 class="text-lg font-bold text-gray-800">${item.title}</h3>
+                            </div>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <div class="text-right text-sm font-medium text-gray-500 hover:text-blue-600">View Details &rarr;</div>
+                    `;
+
+                    if (item.url) {
+                        const linkCard = document.createElement('a');
+                        linkCard.href = item.url;
+                        linkCard.target = '_blank';
+                        linkCard.rel = 'noopener noreferrer';
+                        linkCard.className = 'bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col';
+                        linkCard.innerHTML = cardContent;
+                        grid.appendChild(linkCard);
+                    } else {
+                        const modalCard = document.createElement('div');
+                         modalCard.className = 'bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col';
+                         modalCard.innerHTML = cardContent;
+                         modalCard.addEventListener('click', () => openModal(item));
+                        grid.appendChild(modalCard);
+                    }
+                });
+            };
+
+            // Function to open the modal with item details
+            const openModal = (item) => {
+                document.getElementById('modal-icon').innerHTML = item.icon;
+                document.getElementById('modal-title').innerText = item.title;
+                document.getElementById('modal-category').innerText = item.category;
+                document.getElementById('modal-content').innerHTML = item.content;
+                modal.classList.remove('hidden');
+                // Trigger animation
+                setTimeout(() => {
+                    modalContentWrapper.classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            };
+            
+            // Function to close the modal
+            const closeModal = () => {
+                modalContentWrapper.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            };
+
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredData = knowledgeBaseData.filter(item =>
+                    item.title.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    (item.content && item.content.toLowerCase().includes(searchTerm))
+                );
+                displayCards(filteredData);
+            });
+            
+            // Modal close events
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Keyboard event for closing modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape" && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // Initial display
+            displayCards(knowledgeBaseData);
+        });
+    </script>
+</body>
+</html>
